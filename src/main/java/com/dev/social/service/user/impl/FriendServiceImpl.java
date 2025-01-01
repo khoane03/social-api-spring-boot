@@ -3,6 +3,7 @@ package com.dev.social.service.user.impl;
 import com.dev.social.dto.response.FriendResponseDTO;
 import com.dev.social.dto.result.FriendResult;
 import com.dev.social.entity.Friend;
+import com.dev.social.entity.User;
 import com.dev.social.repository.FriendRepository;
 import com.dev.social.repository.UserRepository;
 import com.dev.social.service.user.FriendService;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,30 +35,21 @@ public class FriendServiceImpl implements FriendService {
 
     @Override
     public void sendFriendRequest(String receiverId) {
-        String senderId = userService.getCurrentUser().getId();
-        if (senderId.equals(receiverId))
-            throw new AppException(ErrorMessage.SAME_USER);
-
-        friendRepository.findByUserIdAndFriendId(senderId, receiverId)
-                .ifPresent(friend -> {
-                    if (FriendEnum.REQUESTED.equals(friend.getStatus())) {
-                        friend.setStatus(FriendEnum.ACCEPTED);
-                        friendRepository.save(friend);
-                    }
-                });
-        friendRepository.findByUserIdAndFriendId(receiverId, senderId)
-                .ifPresentOrElse(friend -> {
-                    if (FriendEnum.REQUESTED.equals(friend.getStatus()))
-                        friendRepository.deleteById(friend.getId());
-                }, () -> {
-                    friendRepository.save(Friend.builder()
-                            .user(userRepository.findById(receiverId)
-                                    .orElseThrow(() -> new AppException(ErrorMessage.USER_NOT_FOUND)))
-                            .friend(userService.getCurrentUser())
-                            .status(FriendEnum.REQUESTED)
-                            .build());
-                });
-
+        User sender = userService.getCurrentUser();
+        if (sender.getId().equals(receiverId)) throw new AppException(ErrorMessage.SAME_USER);
+        //Check if the other person has sent you a friend request
+        Optional<Friend> existingFriendRequested = friendRepository.findByUserIdAndFriendId(sender.getId(), receiverId);
+        if (existingFriendRequested.isPresent()) {
+            handleExistingFriend(existingFriendRequested.get());
+            return;
+        }
+        //Check to see if you've sent a friend request to someone else
+        Optional<Friend> reverseFriend = friendRepository.findByUserIdAndFriendId(receiverId, sender.getId());
+        if (reverseFriend.isPresent()) {
+            handleReverseFriend(reverseFriend.get());
+            return;
+        }
+        createNewFriendRequest(sender, receiverId);
     }
 
     @Override
@@ -119,4 +112,29 @@ public class FriendServiceImpl implements FriendService {
         String userId = userService.getCurrentUser().getId();
         return mapUtils.mapFriend(friendRepository.getAllFriendsRequest(userId));
     }
+
+    void handleExistingFriend(Friend friend) {
+        if (FriendEnum.REQUESTED.equals(friend.getStatus())) {
+            friend.setStatus(FriendEnum.ACCEPTED);
+            friendRepository.save(friend);
+        }
+    }
+
+    void handleReverseFriend(Friend friend) {
+        if (FriendEnum.REQUESTED.equals(friend.getStatus())) {
+            friendRepository.deleteById(friend.getId());
+        }
+    }
+
+    void createNewFriendRequest(User sender, String receiverId) {
+        User receiver = userRepository.findById(receiverId)
+                .orElseThrow(() -> new AppException(ErrorMessage.USER_NOT_FOUND));
+
+        friendRepository.save(Friend.builder()
+                .user(receiver)
+                .friend(sender)
+                .status(FriendEnum.REQUESTED)
+                .build());
+    }
+
 }

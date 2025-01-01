@@ -41,7 +41,7 @@ public interface FriendRepository extends JpaRepository<Friend, String> {
 
     @Query(value = "SELECT f.friend_id " +
             "FROM tbl_friends AS f " +
-            "WHERE f.friend_id = :userId AND f.status = '" + FriendConst.REQUESTED + "'" +
+            "WHERE f.user_id = :userId AND f.status = '" + FriendConst.REQUESTED + "'" +
             "ORDER BY f.updated_at",
             nativeQuery = true)
     List<FriendResult> getAllFriendsRequest(@Param("userId") String userId);
