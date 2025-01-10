@@ -7,6 +7,7 @@ import com.dev.social.utils.constants.AppConst;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,9 +21,9 @@ public class UserController {
     UserService userService;
 
     @GetMapping()
-    public ApiResponseDTO<List<UserResponseDTO>> getAllUser(@RequestParam(defaultValue = "1") int pageIndex,
+    public ResponseEntity<List<UserResponseDTO>> getAllUser(@RequestParam(defaultValue = "1") int pageIndex,
                                                             @RequestParam(defaultValue = "10") int pageSize){
-        return ApiResponseDTO.build(userService.getAllUser(pageIndex, pageSize));
+        return ResponseEntity.ok(userService.getAllUser(pageIndex, pageSize));
     }
 
     @GetMapping("/{id}")

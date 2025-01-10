@@ -44,10 +44,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public AuthResponseDTO login(LoginRequestDTO loginRequestDTO) {
         try {
+            var user = userRepository.findByUsername(loginRequestDTO.getUsername())
+                    .orElseThrow(() -> new AppException(ErrorMessage.INCORRECT_USERNAME_OR_PASSWORD));
             authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(loginRequestDTO.getUsername(), loginRequestDTO.getPassword()));
-            var user = userRepository.findByUsername(loginRequestDTO.getUsername())
-                    .orElseThrow(() -> new AppException(ErrorMessage.ACC_NOT_FOUND));
             Map<String, String> tokens = jwtService.generateToken(user);
             return AuthResponseDTO.builder()
                     .accessToken(tokens.get(AppConst.ACCESS_TOKEN))
@@ -86,6 +86,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .username(registerRequestDTO.getUsername())
                 .password(passwordEncoder.encode(registerRequestDTO.getPassword()))
                 .email(registerRequestDTO.getEmail())
+                .phone(registerRequestDTO.getPhone())
                 .roles(new HashSet<>(Set.of(role)))
                 .status(AppConst.ACTIVE)
                 .build());
