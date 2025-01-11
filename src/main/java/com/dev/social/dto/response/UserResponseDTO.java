@@ -18,6 +18,8 @@ public class UserResponseDTO {
     String name;
     String username;
     String status;
+    String avatarUrl;
+    String coverUrl;
     boolean isVerifier;
     String email;
     String phone;
@@ -36,13 +38,17 @@ public class UserResponseDTO {
             this.setVerifier(user.isVerified());
             this.setEmail(user.getEmail());
             this.setPhone(user.getPhone());
+            this.setAvatarUrl(user.getAvatarUrl());
+            this.setCoverUrl(user.getCoverUrl());
             this.role = user.getRoles()
                     .stream()
                     .map(Role::getRoleName)
                     .collect(Collectors.toSet());
             if (user.getInfo() != null) {
                 this.setDob(user.getInfo().getDob());
-                this.setAge(ChronoUnit.YEARS.between(dob, LocalDate.now()));
+                if(user.getInfo().getDob() != null){
+                    this.setAge(ChronoUnit.YEARS.between(user.getInfo().getDob(), LocalDate.now()));
+                }
                 this.setAddress(user.getInfo().getAddress());
                 this.setGender(user.getInfo().getGender());
             }

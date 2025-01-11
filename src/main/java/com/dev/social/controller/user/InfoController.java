@@ -16,9 +16,9 @@ public class InfoController {
 
     InfoService infoService;
 
-    @PutMapping("/{id}")
-    public ApiResponseDTO<String> updateInfo(@PathVariable(name = "id") String id, @RequestBody UpdateUserInfo req){
-        infoService.updateInfo(req, id);
+    @PutMapping()
+    public ApiResponseDTO<String> updateInfo(@RequestBody UpdateUserInfo req){
+        infoService.updateInfo(req);
         return ApiResponseDTO.build();
     }
 

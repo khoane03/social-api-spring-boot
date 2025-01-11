@@ -17,6 +17,7 @@ public class RegisterValidate {
     UserRepository userRepository;
 
     public void isValidRegister(RegisterRequestDTO req) {
+        checkDuplicate(userRepository.existsByPhone(req.getPhone()), ErrorMessage.PHONE_ALREADY_EXIST);
         checkDuplicate(userRepository.existsByUsername(req.getUsername()), ErrorMessage.USER_ALREADY_EXIST);
         checkDuplicate(userRepository.existsByEmail(req.getEmail()), ErrorMessage.EMAIL_ALREADY_EXIST);
         checkPassMatch(req.getPassword(), req.getConfirmPassword());

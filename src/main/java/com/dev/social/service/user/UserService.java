@@ -8,7 +8,9 @@ import java.util.List;
 public interface UserService {
     List<UserResponseDTO> getAllUser(int pageIndex, int pageSize);
 
-    UserResponseDTO getInfo(String id);
+    UserResponseDTO getInfo();
+
+
 
     void setStatus(String id);
 

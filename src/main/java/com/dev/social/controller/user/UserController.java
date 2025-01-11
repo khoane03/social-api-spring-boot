@@ -20,15 +20,15 @@ public class UserController {
 
     UserService userService;
 
-    @GetMapping()
+    @GetMapping("/all")
     public ResponseEntity<List<UserResponseDTO>> getAllUser(@RequestParam(defaultValue = "1") int pageIndex,
                                                             @RequestParam(defaultValue = "10") int pageSize){
         return ResponseEntity.ok(userService.getAllUser(pageIndex, pageSize));
     }
 
-    @GetMapping("/{id}")
-    public ApiResponseDTO<UserResponseDTO> getInfo(@PathVariable(name = "id") String id){
-        return ApiResponseDTO.build(userService.getInfo(id));
+    @GetMapping()
+    public ApiResponseDTO<UserResponseDTO> getInfo(){
+        return ApiResponseDTO.build(userService.getInfo());
     }
 
     @PutMapping("/status/{id}")

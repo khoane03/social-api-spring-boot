@@ -3,6 +3,9 @@ package com.dev.social.repository;
 import com.dev.social.entity.User;
 import com.dev.social.utils.constants.AppConst;
 import io.lettuce.core.dynamic.annotation.Param;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -61,4 +64,8 @@ public interface UserRepository extends JpaRepository<User, String> {
             "LIMIT :pageSize OFFSET :pageIndex ",
             nativeQuery = true)
     List<User> getAllUsers(@Param("pageIndex") int pageIndex, @Param("pageSize") int pageSize);
+
+    boolean existsByPhone(String phone);
+
+    boolean existsByUsernameAndPassword(String username, String password);
 }

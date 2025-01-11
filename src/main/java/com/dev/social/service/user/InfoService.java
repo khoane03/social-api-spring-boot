@@ -4,5 +4,5 @@ import com.dev.social.dto.request.user.UpdateUserInfo;
 
 public interface InfoService {
 
-    void updateInfo(UpdateUserInfo req, String id);
+    void updateInfo(UpdateUserInfo req);
 }

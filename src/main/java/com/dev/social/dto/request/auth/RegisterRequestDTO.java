@@ -37,4 +37,9 @@ public class RegisterRequestDTO {
     @EmailConstraint(message = "Email must be in the form (A-Z,a-z,0-9)@gmail.com")
     String email;
 
+    @Pattern(regexp = "^(\\+84|0)[0-9]*$",
+            message = "Phone number must start with +84 or 0")
+    @Size(min = 10, max = 12, message = "Phone number must be 10 or 12 digits")
+    String phone;
+
 }
