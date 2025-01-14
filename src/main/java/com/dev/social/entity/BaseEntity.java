@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -22,10 +23,10 @@ public abstract class BaseEntity {
 
     @Column(name = "created_at")
     @CreationTimestamp
-    LocalDate createdAt;
+    LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     @UpdateTimestamp
-    LocalDate updatedAt;
+    LocalDateTime updatedAt;
 
 }

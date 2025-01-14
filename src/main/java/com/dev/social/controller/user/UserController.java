@@ -9,7 +9,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -21,14 +23,20 @@ public class UserController {
     UserService userService;
 
     @GetMapping("/all")
-    public ResponseEntity<List<UserResponseDTO>> getAllUser(@RequestParam(defaultValue = "1") int pageIndex,
+    public ApiResponseDTO<List<UserResponseDTO>> getAllUser(@RequestParam(defaultValue = "1") int pageIndex,
                                                             @RequestParam(defaultValue = "10") int pageSize){
-        return ResponseEntity.ok(userService.getAllUser(pageIndex, pageSize));
+        return ApiResponseDTO.build(userService.getAllUser(pageIndex, pageSize));
     }
 
     @GetMapping()
     public ApiResponseDTO<UserResponseDTO> getInfo(){
         return ApiResponseDTO.build(userService.getInfo());
+    }
+
+    @PutMapping("/updateImage")
+    public ApiResponseDTO<String> updateImage(@RequestParam(name = "type") String type, @RequestParam(name = "file") MultipartFile file) throws IOException {
+        userService.updateImage(file,type);
+        return ApiResponseDTO.build(AppConst.UPDATE_SUCCESS);
     }
 
     @PutMapping("/status/{id}")

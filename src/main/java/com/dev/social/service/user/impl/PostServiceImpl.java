@@ -9,6 +9,7 @@ import com.dev.social.repository.PostRepository;
 import com.dev.social.repository.UserRepository;
 import com.dev.social.service.admin.impl.CloudinaryServiceImpl;
 import com.dev.social.service.user.PostService;
+import com.dev.social.service.user.UserService;
 import com.dev.social.utils.exception.AppException;
 import com.dev.social.utils.exception.ErrorMessage;
 import com.dev.social.utils.mapping.MapUtils;
@@ -32,13 +33,13 @@ import java.util.stream.Stream;
 public class PostServiceImpl implements PostService {
 
     PostRepository postRepository;
-    UserRepository userRepository;
+    UserService userService;
     CloudinaryServiceImpl cloudinaryService;
     MapUtils mapUtils;
 
     @Override
     public void addPost(PostRequest request) throws IOException {
-        User user = getCurrentUser();
+        User user = userService.getCurrentUser();
         Post post = createPost(request, user);
         postRepository.save(post);
     }
@@ -50,12 +51,27 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostResponseDTO> getPostsByUser() {
-        return mapUtils.mapPost(postRepository.getPostsByUserId(getCurrentUser().getId()));
+        return mapUtils.mapPost(postRepository.getPostsByUserId(userService.getCurrentUser().getId()));
     }
 
     @Override
     public void deletePost(String id) {
+        List<String> images = postRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorMessage.POST_NOT_FOUND))
+                .getImages()
+                .stream()
+                .map(PostImage::getImageUrl)
+                .toList();
+        images.forEach(this::deleteImageSafely);
         postRepository.deleteById(id);
+    }
+
+    void deleteImageSafely(String imageUrl) {
+        try {
+            cloudinaryService.deleteImage(imageUrl);
+        } catch (IOException e) {
+            log.error("Failed to delete image from Cloudinary: {}", imageUrl, e);
+        }
     }
 
     @Override
@@ -63,19 +79,15 @@ public class PostServiceImpl implements PostService {
 
     }
 
-    User getCurrentUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new AppException(ErrorMessage.USER_NOT_FOUND));
-    }
-
     Post createPost(PostRequest request, User user) throws IOException {
         Post post = Post.builder()
                 .contents(request.getContent())
                 .user(user)
                 .build();
-        List<PostImage> postImages = createPostImages(request.getFiles(), post);
-        post.setImages(postImages);
+        if (request.getFiles() != null) {
+            List<PostImage> postImages = createPostImages(request.getFiles(), post);
+            post.setImages(postImages);
+        }
         return post;
     }
 

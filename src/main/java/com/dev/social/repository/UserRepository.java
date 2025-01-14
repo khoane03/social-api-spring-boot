@@ -50,7 +50,8 @@ public interface UserRepository extends JpaRepository<User, String> {
             "u.username, " +
             "u.password, " +
             "u.email, " +
-            "u.image_url , " +
+            "u.avatar_url , " +
+            "u.cover_url, " +
             "u.phone, " +
             "u.status, " +
             "u.is_verified, " +

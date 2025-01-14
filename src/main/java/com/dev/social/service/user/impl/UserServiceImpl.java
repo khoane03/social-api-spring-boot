@@ -3,7 +3,9 @@ package com.dev.social.service.user.impl;
 import com.dev.social.dto.response.UserResponseDTO;
 import com.dev.social.entity.User;
 import com.dev.social.repository.UserRepository;
+import com.dev.social.service.admin.CloudinaryService;
 import com.dev.social.service.user.UserService;
+import com.dev.social.utils.enums.ImageEnum;
 import com.dev.social.utils.exception.AppException;
 import com.dev.social.utils.exception.ErrorMessage;
 import lombok.AccessLevel;
@@ -13,7 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +28,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService{
 
     UserRepository userRepository;
+    CloudinaryService cloudinaryService;
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
@@ -51,6 +56,34 @@ public class UserServiceImpl implements UserService{
     public UserResponseDTO getInfo() {
         return new UserResponseDTO(getCurrentUser());
     }
+
+    @Override
+    public void updateImage(MultipartFile file, String type) throws IOException {
+        User user = getCurrentUser();
+        String imageUrl = cloudinaryService.uploadImage(file);
+
+        if (ImageEnum.AVATAR.name().equalsIgnoreCase(type)) {
+            updateAvatar(user, imageUrl);
+        } else if (ImageEnum.COVER.name().equalsIgnoreCase(type)) {
+            updateCover(user, imageUrl);
+        } else {
+            throw new AppException(ErrorMessage.BAD_REQUEST);
+        }
+        userRepository.save(user);
+    }
+
+    void updateAvatar(User user, String imageUrl) {
+        if (!imageUrl.equals(user.getAvatarUrl())) {
+            user.setAvatarUrl(imageUrl);
+        }
+    }
+
+    void updateCover(User user, String imageUrl) {
+        if (!imageUrl.equals(user.getCoverUrl())) {
+            user.setCoverUrl(imageUrl);
+        }
+    }
+
 
     @Override
     public User getCurrentUser() {
