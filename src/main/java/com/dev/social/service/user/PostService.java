@@ -13,7 +13,7 @@ public interface PostService {
 
     List<PostResponseDTO> getAllPosts();
 
-    List<PostResponseDTO> getPostsByUser();
+    List<PostResponseDTO> getPostsByUser(String postId);
 
     void deletePost(String id);
 

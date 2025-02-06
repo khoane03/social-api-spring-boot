@@ -33,6 +33,11 @@ public class UserController {
         return ApiResponseDTO.build(userService.getInfo());
     }
 
+    @GetMapping("/{id}")
+    public ApiResponseDTO<UserResponseDTO> getInfoById(@PathVariable(name = "id") String id){
+        return ApiResponseDTO.build(userService.getInfoById(id));
+    }
+
     @PutMapping("/updateImage")
     public ApiResponseDTO<String> updateImage(@RequestParam(name = "type") String type, @RequestParam(name = "file") MultipartFile file) throws IOException {
         userService.updateImage(file,type);

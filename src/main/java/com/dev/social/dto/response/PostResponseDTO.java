@@ -14,6 +14,8 @@ public class PostResponseDTO {
     String postId;
     String userId;
     String name;
+    String avatarUrl;
+    Boolean isVerified;
     String postContent;
     String createdAt;
     List<String> images;
@@ -23,6 +25,8 @@ public class PostResponseDTO {
             this.setPostId(postResult.getPostId());
             this.setUserId(postResult.getUserId());
             this.setName(postResult.getName());
+            this.setAvatarUrl(postResult.getAvatarUrl());
+            this.setIsVerified(postResult.getVerified());
             this.setPostContent(postResult.getContents());
             this.setImages(new ArrayList<>());
             this.setCreatedAt(postResult.getCreatedAt());

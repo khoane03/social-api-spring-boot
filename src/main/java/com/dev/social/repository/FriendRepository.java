@@ -46,4 +46,18 @@ public interface FriendRepository extends JpaRepository<Friend, String> {
             nativeQuery = true)
     List<FriendResult> getAllFriendsRequest(@Param("userId") String userId);
 
+    @Query(value = "SELECT u.id as friend_id " +
+            "FROM tbl_users AS u " +
+            "WHERE u.id != :userId " +
+            " AND NOT EXISTS( " +
+            "     SELECT 1 " +
+            "       FROM tbl_friends as f " +
+            " WHERE ((f.user_id = :userId AND f.friend_id = u.id) " +
+            " OR (f.friend_id = :userId AND f.user_id = u.id) " +
+            ")" +
+            " AND f.status IN ('" + FriendConst.BLOCKED + "', '" + FriendConst.ACCEPTED + "') " +
+            ")",
+            nativeQuery = true)
+    List<FriendResult> getSuggestionFriends(@Param("userId") String userId);
+
 }

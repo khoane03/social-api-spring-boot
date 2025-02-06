@@ -24,7 +24,7 @@ public class FriendController {
         return ApiResponseDTO.build(friendService.getAllFriends());
     }
 
-    @GetMapping("pending")
+    @GetMapping("/pending")
     public ApiResponseDTO<List<FriendResponseDTO>> getFriendReq() {
         return ApiResponseDTO.build(friendService.getAllFriendsRequest());
     }
@@ -32,6 +32,11 @@ public class FriendController {
     @GetMapping("/block")
     public ApiResponseDTO<List<FriendResponseDTO>> getFriendBlock() {
         return ApiResponseDTO.build(friendService.getAllFriendsBlock());
+    }
+
+    @GetMapping("/suggest")
+    public ApiResponseDTO<List<FriendResponseDTO>> getSuggest() {
+        return ApiResponseDTO.build(friendService.getSuggestionFriends());
     }
 
     @PostMapping("/send-request")

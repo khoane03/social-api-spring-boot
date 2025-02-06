@@ -14,8 +14,9 @@ public interface CommentRepository extends JpaRepository<Comment, String> {
 
     @Query(value = "SELECT cmt.contents," +
             "       cmt.created_at," +
-            "       cmt.id as postId," +
-            "       u.name " +
+            "       cmt.id as postId, " +
+            "       u.name, " +
+            "       u.avatar_url as avatarUrl " +
             "FROM tbl_comments as cmt" +
             "         LEFT JOIN tbl_users as u on cmt.user_id = u.id " +
             "WHERE cmt.post_id = :postId",

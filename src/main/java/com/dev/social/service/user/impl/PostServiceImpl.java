@@ -6,7 +6,6 @@ import com.dev.social.entity.Post;
 import com.dev.social.entity.PostImage;
 import com.dev.social.entity.User;
 import com.dev.social.repository.PostRepository;
-import com.dev.social.repository.UserRepository;
 import com.dev.social.service.admin.impl.CloudinaryServiceImpl;
 import com.dev.social.service.user.PostService;
 import com.dev.social.service.user.UserService;
@@ -17,11 +16,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -50,8 +49,13 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostResponseDTO> getPostsByUser() {
-        return mapUtils.mapPost(postRepository.getPostsByUserId(userService.getCurrentUser().getId()));
+    public List<PostResponseDTO> getPostsByUser(String id) {
+        if(id == null || id.isEmpty()) {
+            return mapUtils.
+                    mapPost(postRepository.getPostsByUserId(userService.getCurrentUser().getId()));
+        }
+        return mapUtils.
+                mapPost(postRepository.getPostsByUserId(id));
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.dev.social.dto.result.FriendResult;
 import java.util.List;
 
 public interface FriendService {
+
     void sendFriendRequest(String receiverId);
 
     void acceptFriendRequest(String friendId);
@@ -19,4 +20,6 @@ public interface FriendService {
     List<FriendResponseDTO> getAllFriendsBlock();
 
     List<FriendResponseDTO> getAllFriendsRequest();
+
+    List<FriendResponseDTO> getSuggestionFriends();
 }

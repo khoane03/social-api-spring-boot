@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.View;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +32,7 @@ public class FriendServiceImpl implements FriendService {
     UserRepository userRepository;
     UserService userService;
     MapUtils mapUtils;
+    private final View error;
 
 
     @Override
@@ -44,6 +46,7 @@ public class FriendServiceImpl implements FriendService {
             return;
         }
         //Check to see if you've sent a friend request to someone else
+        //cancel
         Optional<Friend> reverseFriend = friendRepository.findByUserIdAndFriendId(receiverId, sender.getId());
         if (reverseFriend.isPresent()) {
             handleReverseFriend(reverseFriend.get());
@@ -62,7 +65,7 @@ public class FriendServiceImpl implements FriendService {
                         friendRepository.save(friend);
                     }
                 }, () -> {
-                    throw new AppException(ErrorMessage.FORBIDDEN);
+                    throw new AppException(ErrorMessage.BAD_REQUEST);
                 });
     }
 
@@ -72,12 +75,19 @@ public class FriendServiceImpl implements FriendService {
         friendRepository.findByUserIdAndFriendId(userId, friendId)
                 .ifPresentOrElse(friend -> {
                     if (FriendEnum.ACCEPTED.equals(friend.getStatus())) {
-                        friend.setStatus(FriendEnum.UNFRIEND);
-                        friendRepository.save(friend);
+                        friendRepository.deleteById(friend.getId());
                     }
                 }, () -> {
-                    throw new AppException(ErrorMessage.FORBIDDEN);
+                    friendRepository.findByUserIdAndFriendId(friendId, userId)
+                            .ifPresentOrElse(friend -> {
+                                if (FriendEnum.ACCEPTED.equals(friend.getStatus())) {
+                                    friendRepository.deleteById(friend.getId());
+                                }
+                            }, () -> {
+                                throw new AppException(ErrorMessage.BAD_REQUEST);
+                            });
                 });
+
     }
 
     @Override
@@ -90,7 +100,7 @@ public class FriendServiceImpl implements FriendService {
                         friendRepository.save(friend);
                     }
                 }, () -> {
-                    throw new AppException(ErrorMessage.FORBIDDEN);
+                    throw new AppException(ErrorMessage.BAD_REQUEST);
                 });
 
     }
@@ -111,6 +121,12 @@ public class FriendServiceImpl implements FriendService {
     public List<FriendResponseDTO> getAllFriendsRequest() {
         String userId = userService.getCurrentUser().getId();
         return mapUtils.mapFriend(friendRepository.getAllFriendsRequest(userId));
+    }
+
+    @Override
+    public List<FriendResponseDTO> getSuggestionFriends() {
+        String userId = userService.getCurrentUser().getId();
+        return mapUtils.mapFriend(friendRepository.getSuggestionFriends(userId));
     }
 
     void handleExistingFriend(Friend friend) {

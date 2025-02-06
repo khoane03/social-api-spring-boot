@@ -10,10 +10,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -25,7 +22,7 @@ public class MapUtils {
     UserRepository userRepository;
 
     public List<PostResponseDTO> mapPost(List<PostResult> postResults) {
-        Map<String, PostResponseDTO> postResponseDTOMap = new HashMap<>();
+        Map<String, PostResponseDTO> postResponseDTOMap = new LinkedHashMap<>();
         for(PostResult post: postResults){
             PostResponseDTO postResponseDTO = postResponseDTOMap.computeIfAbsent(post.getPostId(),
                     postId -> new PostResponseDTO(post));

@@ -34,7 +34,11 @@ public class PostController {
 
     @GetMapping("/user-posts")
     public ApiResponseDTO<List<PostResponseDTO>> getPostsByUser() {
-        return ApiResponseDTO.build(postService.getPostsByUser());
+        return ApiResponseDTO.build(postService.getPostsByUser(""));
+    }
+    @GetMapping("/{id}")
+    public ApiResponseDTO<List<PostResponseDTO>> getPostsById(@PathVariable String id) {
+        return ApiResponseDTO.build(postService.getPostsByUser(id));
     }
 
     @DeleteMapping("/{id}")

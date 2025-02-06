@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,18 +59,24 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    public UserResponseDTO getInfoById(String id) {
+        return new UserResponseDTO(userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorMessage.USER_NOT_FOUND)));
+    }
+
+    @Override
     public void updateImage(MultipartFile file, String type) throws IOException {
         User user = getCurrentUser();
         String imageUrl = cloudinaryService.uploadImage(file);
-
         if (ImageEnum.AVATAR.name().equalsIgnoreCase(type)) {
             updateAvatar(user, imageUrl);
+            userRepository.save(user);
         } else if (ImageEnum.COVER.name().equalsIgnoreCase(type)) {
             updateCover(user, imageUrl);
+            userRepository.save(user);
         } else {
             throw new AppException(ErrorMessage.BAD_REQUEST);
         }
-        userRepository.save(user);
     }
 
     void updateAvatar(User user, String imageUrl) {
@@ -87,6 +94,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User getCurrentUser() {
+
         if (SecurityContextHolder.getContext().getAuthentication().isAuthenticated())
         {
             String username = SecurityContextHolder.getContext().getAuthentication().getName();

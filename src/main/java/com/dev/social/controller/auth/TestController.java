@@ -65,6 +65,11 @@ public class TestController {
         return ResponseEntity.ok(cloudinaryService.uploadImage(file));
     }
 
+    @PostMapping("/test1")
+    public ResponseEntity<String> test1(@RequestBody String url) throws Exception {
+        return cloudinaryService.deleteImage(url) ? ResponseEntity.ok("success") : ResponseEntity.ok("fail");
+    }
+
 
 
 
@@ -73,10 +78,10 @@ public class TestController {
         return ResponseEntity.ok(commentService.getCommentsByPostId(id));
     }
 
-    @GetMapping("/test")
-    public ResponseEntity<?> test() {
-        return ResponseEntity.ok(postService.getPostsByUser());
-    }
+//    @GetMapping("/test")
+//    public ResponseEntity<?> test() {
+//        return ResponseEntity.ok(postService.getPostsByUser());
+//    }
 
 
 }
